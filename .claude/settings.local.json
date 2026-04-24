@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x \"C:/Users/Oleksandr/Desktop/marina/scripts/backup-db.sh\" \"C:/Users/Oleksandr/Desktop/marina/scripts/deploy.sh\")",
+      "Bash(git -C /c/Users/Oleksandr/Desktop/marina rev-parse --is-inside-work-tree)"
+    ]
+  }
+}
