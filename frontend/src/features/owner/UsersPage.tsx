@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { apiGet, apiPost } from "@/lib/api";
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import type { Store, User, UserRole } from "@/lib/types";
 
@@ -47,6 +47,17 @@ export default function UsersPage() {
       setFullName("");
       qc.invalidateQueries({ queryKey: ["users"] });
     },
+  });
+
+  const toggleActive = useMutation({
+    mutationFn: (u: User) =>
+      apiPatch<User>(`/api/users/${u.id}`, { is_active: !u.is_active }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  const deleteUser = useMutation({
+    mutationFn: (id: number) => apiDelete(`/api/users/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
   });
 
   const storeList = stores.data ?? [];
@@ -142,14 +153,45 @@ export default function UsersPage() {
             <ul className="divide-y">
               {(users.data ?? []).map((u) => {
                 const storeName = storeList.find((s) => s.id === u.store_id)?.name;
+                const isSelf = me?.id === u.id;
                 return (
-                  <li key={u.id} className="py-3">
-                    <div className="font-medium text-gray-900">{u.full_name}</div>
-                    <div className="text-xs text-gray-500">
-                      {u.email} · {ROLE_OPTIONS.find((r) => r.value === u.role)?.label ?? u.role}
-                      {storeName && ` · ${storeName}`}
-                      {!u.is_active && " · неактивний"}
+                  <li key={u.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900">{u.full_name}</div>
+                      <div className="text-xs text-gray-500">
+                        {u.email} · {ROLE_OPTIONS.find((r) => r.value === u.role)?.label ?? u.role}
+                        {storeName && ` · ${storeName}`}
+                        {!u.is_active && " · неактивний"}
+                      </div>
                     </div>
+                    {!isSelf && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleActive.mutate(u)}
+                          disabled={toggleActive.isPending}
+                          className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          {u.is_active ? "Деактивувати" : "Активувати"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Видалити користувача "${u.full_name}" разом з усіма його змінами й транзакціями? Це незворотньо.`,
+                              )
+                            ) {
+                              deleteUser.mutate(u.id);
+                            }
+                          }}
+                          disabled={deleteUser.isPending}
+                          className="rounded-lg border border-red-300 px-3 py-1 text-sm text-red-700 hover:bg-red-50 disabled:opacity-40"
+                        >
+                          Видалити
+                        </button>
+                      </div>
+                    )}
                   </li>
                 );
               })}

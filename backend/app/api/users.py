@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
 from app.core.security import hash_password
 from app.db.base import get_db
-from app.db.models import Store, User, UserRole
+from app.db.models import AuditLog, Shift, Store, Transaction, User, UserRole
 from app.schemas.users import UserCreate, UserOut, UserUpdate
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -92,3 +92,30 @@ def update_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    actor: User = Depends(get_current_user),
+) -> Response:
+    """TEST-ONLY: hard delete of a user with all their shifts and transactions."""
+    if actor.role != UserRole.owner.value:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "forbidden")
+    if actor.id == user_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "cannot delete yourself")
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "user not found")
+    shift_ids = [
+        s for (s,) in db.execute(select(Shift.id).where(Shift.cashier_id == user_id)).all()
+    ]
+    if shift_ids:
+        db.execute(delete(Transaction).where(Transaction.shift_id.in_(shift_ids)))
+        db.execute(delete(Shift).where(Shift.id.in_(shift_ids)))
+    db.execute(delete(Transaction).where(Transaction.user_id == user_id))
+    db.execute(delete(AuditLog).where(AuditLog.user_id == user_id))
+    db.execute(delete(User).where(User.id == user_id))
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

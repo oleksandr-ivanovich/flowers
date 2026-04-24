@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { apiGet, apiPost } from "@/lib/api";
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
 import type { Store } from "@/lib/types";
 
 export default function StoresPage() {
@@ -22,6 +22,17 @@ export default function StoresPage() {
       setAddress("");
       qc.invalidateQueries({ queryKey: ["stores"] });
     },
+  });
+
+  const toggleActive = useMutation({
+    mutationFn: (s: Store) =>
+      apiPatch<Store>(`/api/stores/${s.id}`, { is_active: !s.is_active }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["stores"] }),
+  });
+
+  const deleteStore = useMutation({
+    mutationFn: (id: number) => apiDelete(`/api/stores/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["stores"] }),
   });
 
   return (
@@ -73,8 +84,8 @@ export default function StoresPage() {
           ) : (
             <ul className="divide-y">
               {(stores.data ?? []).map((s) => (
-                <li key={s.id} className="flex items-center justify-between py-3">
-                  <div>
+                <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                  <div className="min-w-0">
                     <div className="font-medium text-gray-900">
                       {s.name}
                       {!s.is_active && (
@@ -85,12 +96,38 @@ export default function StoresPage() {
                     </div>
                     {s.address && <div className="text-xs text-gray-500">{s.address}</div>}
                   </div>
-                  <Link
-                    to={`/owner/store/${s.id}/report`}
-                    className="text-sm text-gray-700 underline"
-                  >
-                    Звіт
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/owner/store/${s.id}/report`}
+                      className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-100"
+                    >
+                      Звіт
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => toggleActive.mutate(s)}
+                      disabled={toggleActive.isPending}
+                      className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-100 disabled:opacity-40"
+                    >
+                      {s.is_active ? "Деактивувати" : "Активувати"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Видалити магазин "${s.name}" разом з усіма змінами й транзакціями? Це незворотньо.`,
+                          )
+                        ) {
+                          deleteStore.mutate(s.id);
+                        }
+                      }}
+                      disabled={deleteStore.isPending}
+                      className="rounded-lg border border-red-300 px-3 py-1 text-sm text-red-700 hover:bg-red-50 disabled:opacity-40"
+                    >
+                      Видалити
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
