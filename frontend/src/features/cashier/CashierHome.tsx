@@ -3,13 +3,29 @@ import { Link } from "react-router-dom";
 
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import type { Shift } from "@/lib/types";
+import type { PaymentMethod, Shift, Transaction, TransactionType } from "@/lib/types";
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString("uk-UA", {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+const TYPE_LABEL: Record<TransactionType, string> = {
+  sale: "Продаж",
+  deposit: "Внесення",
+  withdrawal: "Вилучення",
+};
+
+function amountSign(type: TransactionType): string {
+  return type === "withdrawal" ? "−" : "+";
+}
+
+function amountColor(type: TransactionType): string {
+  if (type === "sale") return "text-emerald-700";
+  if (type === "deposit") return "text-blue-700";
+  return "text-red-700";
 }
 
 export default function CashierHome() {
@@ -20,6 +36,22 @@ export default function CashierHome() {
     queryKey: ["shifts", "me", "current"],
     queryFn: () => apiGet<Shift | null>("/api/shifts/me/current"),
   });
+
+  const shiftId = shiftQuery.data?.id;
+
+  const txQuery = useQuery({
+    queryKey: ["transactions", "shift", shiftId],
+    queryFn: () => apiGet<Transaction[]>(`/api/transactions?shift_id=${shiftId}`),
+    enabled: Boolean(shiftId),
+  });
+
+  const pmQuery = useQuery({
+    queryKey: ["payment-methods"],
+    queryFn: () => apiGet<PaymentMethod[]>("/api/payment-methods"),
+    enabled: Boolean(shiftId),
+  });
+
+  const pmById = new Map((pmQuery.data ?? []).map((pm) => [pm.id, pm.name]));
 
   const openMutation = useMutation({
     mutationFn: (starting_cash: number) =>
@@ -84,6 +116,35 @@ export default function CashierHome() {
             >
               Вилучення
             </Link>
+          </div>
+
+          <div className="mt-6 border-t border-gray-100 pt-4">
+            <div className="mb-2 text-sm font-semibold text-gray-900">Операції зміни</div>
+            {txQuery.isLoading ? (
+              <div className="text-sm text-gray-500">Завантаження…</div>
+            ) : !txQuery.data || txQuery.data.length === 0 ? (
+              <div className="text-sm text-gray-500">Поки що операцій немає.</div>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {txQuery.data.map((tx) => (
+                  <li key={tx.id} className="flex items-center justify-between py-2 text-sm">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-900">
+                        {TYPE_LABEL[tx.type]}
+                        {tx.type === "sale" && tx.payment_method_id
+                          ? ` · ${pmById.get(tx.payment_method_id) ?? ""}`
+                          : ""}
+                      </span>
+                      <span className="text-xs text-gray-500">{formatTime(tx.created_at)}</span>
+                    </div>
+                    <span className={`font-semibold ${amountColor(tx.type)}`}>
+                      {amountSign(tx.type)}
+                      {tx.amount} грн
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       ) : (
