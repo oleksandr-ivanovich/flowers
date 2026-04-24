@@ -25,29 +25,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    expose:
-      - "8000"
+    ports:
+      - "127.0.0.1:8000:8000"
 
   web:
     build: ./frontend
     restart: unless-stopped
     depends_on:
       - api
-    expose:
-      - "80"
-
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    environment:
-      DOMAIN: ${DOMAIN}
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy_data:/data
-      - ./caddy_config:/config
-    depends_on:
-      - web
-      - api
+      - "127.0.0.1:8080:80"
