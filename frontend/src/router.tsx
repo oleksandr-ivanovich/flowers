@@ -6,6 +6,7 @@ import CloseShiftPage from "@/features/cashier/CloseShiftPage";
 import DepositPage from "@/features/cashier/DepositPage";
 import WithdrawalPage from "@/features/cashier/WithdrawalPage";
 import HomePage from "@/features/home/HomePage";
+import CustomersPage from "@/features/owner/CustomersPage";
 import NetworkReportPage from "@/features/owner/NetworkReportPage";
 import OwnerPanel from "@/features/owner/OwnerPanel";
 import StoreReportPage from "@/features/owner/StoreReportPage";
@@ -97,6 +98,14 @@ export default function AppRouter() {
         element={
           <RequireRole roles={["owner", "store_admin"]}>
             <UsersPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/owner/customers"
+        element={
+          <RequireRole roles={["owner"]}>
+            <CustomersPage />
           </RequireRole>
         }
       />

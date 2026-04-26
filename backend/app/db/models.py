@@ -77,7 +77,23 @@ class PaymentMethod(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_bonus: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class Customer(Base):
+    __tablename__ = "customers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    phone: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
+    bonus_balance: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), nullable=False, default=0
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class Shift(Base):
@@ -131,6 +147,9 @@ class Transaction(Base):
     payment_method_id: Mapped[int | None] = mapped_column(
         ForeignKey("payment_methods.id", ondelete="RESTRICT")
     )
+    customer_id: Mapped[int | None] = mapped_column(
+        ForeignKey("customers.id", ondelete="SET NULL"), index=True
+    )
     comment: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
@@ -138,6 +157,7 @@ class Transaction(Base):
 
     shift: Mapped[Shift] = relationship(back_populates="transactions")
     payment_method: Mapped[PaymentMethod | None] = relationship()
+    customer: Mapped[Customer | None] = relationship()
 
 
 class AuditLog(Base):

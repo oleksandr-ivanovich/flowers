@@ -10,6 +10,7 @@ class TransactionCreate(BaseModel):
     type: TransactionType
     amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     payment_method_id: int | None = None
+    customer_id: int | None = None
     comment: str | None = None
 
     @model_validator(mode="after")
@@ -29,6 +30,7 @@ class TransactionOut(BaseModel):
     type: TransactionType
     amount: Decimal
     payment_method_id: int | None
+    customer_id: int | None
     comment: str | None
     created_at: datetime
 

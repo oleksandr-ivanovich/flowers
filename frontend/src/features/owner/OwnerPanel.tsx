@@ -39,6 +39,10 @@ export default function OwnerPanel() {
               <h2 className="font-semibold text-gray-900">Магазини</h2>
               <p className="mt-1 text-sm text-gray-600">Створення та керування магазинами</p>
             </Link>
+            <Link to="/owner/customers" className="rounded-2xl bg-white p-6 shadow-sm hover:shadow">
+              <h2 className="font-semibold text-gray-900">Клієнти</h2>
+              <p className="mt-1 text-sm text-gray-600">База клієнтів і бонусні баланси</p>
+            </Link>
             <Link to="/owner/network-report" className="rounded-2xl bg-white p-6 shadow-sm hover:shadow">
               <h2 className="font-semibold text-gray-900">Зведений звіт по мережі</h2>
               <p className="mt-1 text-sm text-gray-600">Усі магазини, період на вибір</p>

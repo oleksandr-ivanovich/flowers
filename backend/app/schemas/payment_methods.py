@@ -17,6 +17,7 @@ class PaymentMethodOut(BaseModel):
     id: int
     name: str
     is_active: bool
+    is_bonus: bool
     sort_order: int
 
     class Config:

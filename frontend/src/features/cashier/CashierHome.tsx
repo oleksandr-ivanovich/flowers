@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import type { PaymentMethod, Shift, Transaction, TransactionType } from "@/lib/types";
+import type { Customer, PaymentMethod, Shift, Transaction, TransactionType } from "@/lib/types";
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString("uk-UA", {
@@ -51,7 +51,14 @@ export default function CashierHome() {
     enabled: Boolean(shiftId),
   });
 
+  const customersQuery = useQuery({
+    queryKey: ["customers", "all"],
+    queryFn: () => apiGet<Customer[]>("/api/customers?limit=500"),
+    enabled: Boolean(shiftId),
+  });
+
   const pmById = new Map((pmQuery.data ?? []).map((pm) => [pm.id, pm.name]));
+  const customerById = new Map((customersQuery.data ?? []).map((c) => [c.id, c.name]));
 
   const openMutation = useMutation({
     mutationFn: (starting_cash: number) =>
@@ -133,6 +140,9 @@ export default function CashierHome() {
                         {TYPE_LABEL[tx.type]}
                         {tx.type === "sale" && tx.payment_method_id
                           ? ` · ${pmById.get(tx.payment_method_id) ?? ""}`
+                          : ""}
+                        {tx.customer_id && customerById.get(tx.customer_id)
+                          ? ` · ${customerById.get(tx.customer_id)}`
                           : ""}
                       </span>
                       <span className="text-xs text-gray-500">{formatTime(tx.created_at)}</span>

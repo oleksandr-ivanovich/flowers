@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "dev-secret-change-me"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 720
     CORS_ORIGINS: str = "http://localhost:5173"
+    BONUS_RATE_PERCENT: int = 7
 
     @property
     def cors_origins_list(self) -> list[str]:

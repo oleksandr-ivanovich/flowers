@@ -22,7 +22,17 @@ export interface PaymentMethod {
   id: number;
   name: string;
   is_active: boolean;
+  is_bonus: boolean;
   sort_order: number;
+}
+
+export interface Customer {
+  id: number;
+  name: string;
+  phone: string;
+  bonus_balance: string;
+  is_active: boolean;
+  created_at: string;
 }
 
 export type ShiftStatus = "open" | "closed";
@@ -47,6 +57,7 @@ export interface Transaction {
   type: TransactionType;
   amount: string;
   payment_method_id: number | null;
+  customer_id: number | null;
   comment: string | null;
   created_at: string;
 }
