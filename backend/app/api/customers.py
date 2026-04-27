@@ -48,7 +48,7 @@ def get_customer(
 def create_customer(
     body: CustomerCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role(UserRole.owner)),
+    _: User = Depends(get_current_user),
 ) -> Customer:
     if db.execute(select(Customer).where(Customer.phone == body.phone)).scalar_one_or_none():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "phone already exists")
