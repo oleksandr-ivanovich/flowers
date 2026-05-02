@@ -98,7 +98,7 @@ export default function AddSalePage() {
 
       <div className="rounded-2xl bg-white p-6 shadow-sm">
         <div className="mb-4 text-center text-4xl font-bold text-gray-900 tabular-nums">
-          {amount || "0"} <span className="text-2xl font-normal text-gray-500">грн</span>
+          {amount || "0"} <span className="text-2xl font-normal text-gray-500">€</span>
         </div>
         <Numpad value={amount} onChange={setAmount} />
       </div>
@@ -248,7 +248,7 @@ export default function AddSalePage() {
         )}
         {insufficientBonus && (
           <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            Недостатньо бонусів: {customer?.bonus_balance} грн.
+            Недостатньо бонусів: {customer?.bonus_balance} €.
           </div>
         )}
       </div>

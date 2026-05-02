@@ -45,7 +45,7 @@ export default function CashMovementPage({ type, title, commentLabel }: Props) {
 
       <div className="rounded-2xl bg-white p-6 shadow-sm">
         <div className="mb-4 text-center text-4xl font-bold text-gray-900 tabular-nums">
-          {amount || "0"} <span className="text-2xl font-normal text-gray-500">грн</span>
+          {amount || "0"} <span className="text-2xl font-normal text-gray-500">€</span>
         </div>
         <Numpad value={amount} onChange={setAmount} />
       </div>

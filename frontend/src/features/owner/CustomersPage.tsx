@@ -214,7 +214,7 @@ function AdjustBonusForm({
           required
           value={delta}
           onChange={(e) => setDelta(e.target.value)}
-          placeholder="Дельта (грн)"
+          placeholder="Дельта (€)"
           className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm"
         />
         <input

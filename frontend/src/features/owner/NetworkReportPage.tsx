@@ -131,7 +131,7 @@ function Row({
     <div className={`flex items-baseline justify-between ${muted ? "text-gray-600" : "text-gray-900"}`}>
       <span>{label}</span>
       <span className={`tabular-nums ${bold ? "text-lg font-semibold" : ""}`}>
-        {formatMoney(value)} грн
+        {formatMoney(value)} €
       </span>
     </div>
   );

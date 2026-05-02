@@ -59,7 +59,7 @@ export default function CloseShiftPage() {
           <div className="border-b pb-3 text-sm text-gray-600">
             <div>Магазин: <span className="font-medium text-gray-900">{r.store_name}</span></div>
             <div>Касир: <span className="font-medium text-gray-900">{r.cashier_name}</span></div>
-            <div>Стартова сума: {formatMoney(r.starting_cash)} грн</div>
+            <div>Стартова сума: {formatMoney(r.starting_cash)} €</div>
           </div>
 
           <Row label="Продажі (всього)" value={r.sales_total} bold />
@@ -130,7 +130,7 @@ function Row({
     >
       <span>{label}</span>
       <span className={`tabular-nums ${bold ? "text-lg font-semibold" : ""}`}>
-        {formatMoney(value)} грн
+        {formatMoney(value)} €
       </span>
     </div>
   );

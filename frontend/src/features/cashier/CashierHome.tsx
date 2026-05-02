@@ -67,7 +67,7 @@ export default function CashierHome() {
   });
 
   const onOpenShift = () => {
-    const raw = window.prompt("Стартова сума в касі (грн):", "0");
+    const raw = window.prompt("Стартова сума в касі (€):", "0");
     if (raw === null) return;
     const amount = Number(raw.replace(",", "."));
     if (!Number.isFinite(amount) || amount < 0) {
@@ -93,7 +93,7 @@ export default function CashierHome() {
                 з {formatTime(shift.opened_at)}
               </div>
               <div className="mt-1 text-sm text-gray-600">
-                Стартова сума: {shift.starting_cash} грн
+                Стартова сума: {shift.starting_cash} €
               </div>
             </div>
             <Link
@@ -149,7 +149,7 @@ export default function CashierHome() {
                     </div>
                     <span className={`font-semibold ${amountColor(tx.type)}`}>
                       {amountSign(tx.type)}
-                      {tx.amount} грн
+                      {tx.amount} €
                     </span>
                   </li>
                 ))}
